@@ -1,0 +1,19 @@
+# This file tells Docker which files and directories shouldn't
+# be copied into the container.
+#
+# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+
+# Ignore version control
+.git
+
+# Ignore deps and build artifacts
+/deps
+/_build
+
+# Ignore CI and dev/test configs
+/.github
+/config/dev.exs
+/config/test.exs
+
+# Ignore Fly.io config
+fly.toml
