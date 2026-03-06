@@ -15,7 +15,9 @@ defmodule FastestMusicApiWeb.ArtworkController do
   def batch(conn, %{"albums" => albums}) when is_list(albums) do
     results = BatchResolver.resolve_batch(albums)
 
-    json(conn, %{
+    conn
+    |> put_resp_header("cache-control", "public, max-age=86400")
+    |> json(%{
       "results" => results,
       "count" => length(results)
     })

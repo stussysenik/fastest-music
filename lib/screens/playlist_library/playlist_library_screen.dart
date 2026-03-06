@@ -13,7 +13,7 @@ import '../../shared_widgets/artwork_image.dart';
 import '../../shared_widgets/loading_indicator.dart';
 import '../../shared_widgets/error_view.dart';
 import '../../shared_widgets/song_tile.dart';
-import '../../shared_widgets/alphabet_index.dart';
+import '../../shared_widgets/platform_alphabet_index.dart';
 
 /// "My Music" library screen with segmented tabs and A-Z scrolling index.
 ///
@@ -328,7 +328,7 @@ class _AlbumsTabState extends ConsumerState<_AlbumsTab> {
               ),
             ),
             // A-Z sidebar
-            AlphabetIndex(
+            PlatformAlphabetIndex(
               activeLetter: _activeLetter,
               availableLetters: availableLetters,
               onLetterSelected: (letter) {
@@ -529,7 +529,7 @@ class _ArtistsTabState extends ConsumerState<_ArtistsTab> {
                 ),
               ),
             ),
-            AlphabetIndex(
+            PlatformAlphabetIndex(
               activeLetter: _activeLetter,
               availableLetters: availableLetters,
               onLetterSelected: (letter) {
@@ -661,7 +661,7 @@ class _SongsTabState extends ConsumerState<_SongsTab> {
                 ),
               ),
             ),
-            AlphabetIndex(
+            PlatformAlphabetIndex(
               activeLetter: _activeLetter,
               availableLetters: availableLetters,
               onLetterSelected: (letter) {

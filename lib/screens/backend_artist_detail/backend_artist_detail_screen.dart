@@ -50,6 +50,7 @@ class BackendArtistDetailScreen extends ConsumerWidget {
                     size: 120,
                     borderRadius: 60,
                     placeholderIcon: Icons.person,
+                    imageSize: ArtworkImageSize.medium,
                   ),
                   loading: () => const ArtworkImage(
                     size: 120,

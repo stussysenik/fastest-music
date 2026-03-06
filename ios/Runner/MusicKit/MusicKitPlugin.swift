@@ -204,7 +204,8 @@ class MusicKitPlugin {
                 result(FlutterMethodNotImplemented)
             }
         } catch {
-            result(FlutterError(code: "MUSICKIT_ERROR", message: error.localizedDescription, details: nil))
+            let message = "\(type(of: error)): \(error.localizedDescription)"
+            result(FlutterError(code: "MUSICKIT_ERROR", message: message, details: String(describing: error)))
         }
     }
 }

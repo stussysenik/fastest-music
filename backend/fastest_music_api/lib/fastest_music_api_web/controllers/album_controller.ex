@@ -19,7 +19,9 @@ defmodule FastestMusicApiWeb.AlbumController do
         |> json(%{"error" => "Album not found"})
 
       album ->
-        json(conn, %{
+        conn
+        |> put_resp_header("cache-control", "public, max-age=3600")
+        |> json(%{
           "id" => to_string(album.id),
           "title" => album.title,
           "artistName" => album.artist_name,
@@ -41,7 +43,9 @@ defmodule FastestMusicApiWeb.AlbumController do
     else
       case ArtworkResolver.get_artwork(artist, album) do
         {:ok, url} ->
-          json(conn, %{"artworkUrl" => url, "artist" => artist, "album" => album})
+          conn
+          |> put_resp_header("cache-control", "public, max-age=86400")
+          |> json(%{"artworkUrl" => url, "artist" => artist, "album" => album})
 
         {:error, :not_found} ->
           conn

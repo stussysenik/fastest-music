@@ -29,6 +29,7 @@ class SongDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final artworkSize = screenWidth * 0.65;
+    final normalizedArtworkUrl = ArtworkImage.normalizeUrl(song.artworkUrl, ArtworkImageSize.full);
     final canPlay = ref.watch(musicKitAvailabilityProvider) ==
         MusicKitAvailability.available;
 
@@ -47,12 +48,13 @@ class SongDetailScreen extends ConsumerWidget {
                 fit: StackFit.expand,
                 children: [
                   // Blurred artwork background
-                  if (song.artworkUrl != null && song.artworkUrl!.isNotEmpty)
+                  if (normalizedArtworkUrl != null)
                     ImageFiltered(
                       imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
                       child: Image.network(
-                        song.artworkUrl!,
+                        normalizedArtworkUrl,
                         fit: BoxFit.cover,
+                        headers: const {'User-Agent': 'FastestMusic/1.0 (iOS)'},
                         color: Colors.black.withValues(alpha: 0.4),
                         colorBlendMode: BlendMode.darken,
                       ),
@@ -193,7 +195,8 @@ class SongDetailScreen extends ConsumerWidget {
                             ref.read(playerControlsProvider).playSong(song.id);
                             context.go('/now-playing');
                           },
-                          icon: const Icon(Icons.play_arrow, color: Colors.white),
+                          icon:
+                              const Icon(Icons.play_arrow, color: Colors.white),
                           label: const Text('Play',
                               style: TextStyle(color: Colors.white)),
                           style: ElevatedButton.styleFrom(
@@ -285,6 +288,8 @@ class SongDetailScreen extends ConsumerWidget {
       ),
     );
   }
+
+  // URL normalization now handled by ArtworkImage.normalizeUrl()
 
   void _showAddToPlaylist(BuildContext context, WidgetRef ref) {
     showAddToPlaylistSheet(context, song.id, song.title);

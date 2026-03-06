@@ -1,19 +1,38 @@
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import '../core/config/api_config.dart';
 import '../services/album_cover_service.dart';
 import '../services/backend_search_service.dart';
 import '../services/federated_music_service.dart';
 import 'authorization_provider.dart';
 
-/// Dio HTTP client configured for the Elixir backend.
+/// Dio HTTP cache options — persists responses to Hive for offline support.
 ///
-/// ## Dio vs http package (educational)
+/// ## Why HTTP-level caching? (educational)
 ///
-/// Dio provides automatic retries, request/response interceptors,
-/// timeout configuration, and connection pooling out of the box.
-/// This is important for the federated search strategy where we need
-/// tight timeout control to fall back to MusicKit quickly.
+/// This is a separate layer from the Hive SWR cache in providers.
+/// SWR caches the *parsed* domain objects (songs, albums).
+/// HTTP caching caches the *raw HTTP responses* from the backend.
+/// Together they provide two tiers:
+/// 1. SWR: instant UI from parsed data (Layer 1)
+/// 2. HTTP cache: fast responses even when "revalidating" (Layer 4)
+///
+/// With cache-control headers from the backend, repeat requests can be
+/// served from disk without hitting the network at all.
+final _cacheOptionsProvider = FutureProvider<CacheOptions>((ref) async {
+  final dir = await getApplicationDocumentsDirectory();
+  final store = HiveCacheStore('${dir.path}/dio_http_cache');
+  return CacheOptions(
+    store: store,
+    policy: CachePolicy.forceCache,
+    maxStale: const Duration(hours: 1),
+  );
+});
+
+/// Dio HTTP client configured for the Elixir backend with caching.
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
     baseUrl: ApiConfig.backendUrl,
@@ -24,6 +43,15 @@ final dioProvider = Provider<Dio>((ref) {
       'Content-Type': 'application/json',
     },
   ));
+
+  // Add cache interceptor asynchronously — it will be ready before
+  // any real network requests fire (Hive SWR serves the first frame).
+  ref.listen(_cacheOptionsProvider, (_, next) {
+    next.whenData((options) {
+      dio.interceptors.add(DioCacheInterceptor(options: options));
+    });
+  });
+
   return dio;
 });
 
@@ -48,10 +76,6 @@ final albumCoverServiceProvider = Provider<AlbumCoverService?>((ref) {
 });
 
 /// Federated music service — races backend + MusicKit for catalog search.
-///
-/// Catalog search works without MusicKit user authorization, so we always
-/// try both sources. Library access (playlists, recently-played) is handled
-/// separately through [MusicKitService] which requires auth.
 final federatedMusicServiceProvider = Provider<FederatedMusicService>((ref) {
   final musicKitService = ref.watch(musicKitServiceProvider);
   final backendService = ref.watch(backendSearchServiceProvider);

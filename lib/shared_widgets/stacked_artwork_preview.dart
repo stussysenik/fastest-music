@@ -120,6 +120,7 @@ class _StackedArtworkPreviewState extends State<StackedArtworkPreview>
                 url: url,
                 size: widget.cardSize,
                 borderRadius: 12,
+                imageSize: ArtworkImageSize.medium,
               ),
             ),
           ),

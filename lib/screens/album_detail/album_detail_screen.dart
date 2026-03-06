@@ -54,6 +54,7 @@ class AlbumDetailScreen extends ConsumerWidget {
                     url: album.artworkUrl,
                     size: MediaQuery.of(context).size.width * 0.6,
                     borderRadius: 12,
+                    imageSize: ArtworkImageSize.full,
                   ),
                   const SizedBox(height: 20),
                   Text(

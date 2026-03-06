@@ -73,6 +73,7 @@ class MiniPlayer extends ConsumerWidget {
               url: state.artworkUrl,
               size: 40,
               borderRadius: 6,
+              imageSize: ArtworkImageSize.thumbnail,
             ),
             const SizedBox(width: 12),
             Expanded(

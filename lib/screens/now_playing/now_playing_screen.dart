@@ -162,7 +162,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
     final isPlaying = state.status == PlaybackStatus.playing;
     final progress =
         state.duration > 0 ? state.playbackTime / state.duration : 0.0;
-    final artworkUrl = state.artworkUrl ?? '';
+    final artworkUrl = ArtworkImage.normalizeUrl(state.artworkUrl, ArtworkImageSize.full) ?? '';
 
     // Extract colors from artwork
     final colorsAsync = artworkUrl.isNotEmpty
@@ -183,10 +183,10 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
             child: Image.network(
               artworkUrl,
               fit: BoxFit.cover,
+              headers: const {'User-Agent': 'FastestMusic/1.0 (iOS)'},
               color: Colors.black.withValues(alpha: 0.3),
               colorBlendMode: BlendMode.darken,
-              errorBuilder: (_, __, ___) =>
-                  Container(color: colors.dominant),
+              errorBuilder: (_, __, ___) => Container(color: colors.dominant),
             ),
           )
         else
@@ -245,6 +245,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
                     url: state.artworkUrl,
                     size: artworkSize,
                     borderRadius: 16,
+                    imageSize: ArtworkImageSize.full,
                   ),
                 ),
               ),
@@ -304,13 +305,13 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
                     SliderTheme(
                       data: SliderThemeData(
                         trackHeight: 3,
-                        thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 6),
+                        thumbShape:
+                            const RoundSliderThumbShape(enabledThumbRadius: 6),
                         activeTrackColor: colors.vibrant,
                         inactiveTrackColor: Colors.white24,
                         thumbColor: Colors.white,
-                        overlayShape: const RoundSliderOverlayShape(
-                            overlayRadius: 14),
+                        overlayShape:
+                            const RoundSliderOverlayShape(overlayRadius: 14),
                       ),
                       child: Slider(
                         value: progress.clamp(0.0, 1.0),
@@ -402,9 +403,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
                                 ),
                                 child: IconButton(
                                   icon: Icon(
-                                    isPlaying
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
+                                    isPlaying ? Icons.pause : Icons.play_arrow,
                                     color: Colors.white,
                                   ),
                                   iconSize: 40,
@@ -433,9 +432,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
                     // Repeat toggle
                     IconButton(
                       icon: Icon(
-                        _repeatMode == 'one'
-                            ? Icons.repeat_one
-                            : Icons.repeat,
+                        _repeatMode == 'one' ? Icons.repeat_one : Icons.repeat,
                         color: _repeatMode != 'none'
                             ? colors.vibrant
                             : Colors.white38,
@@ -473,6 +470,8 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen>
       ],
     );
   }
+
+  // URL normalization now handled by ArtworkImage.normalizeUrl()
 
   String _formatTime(double seconds) {
     final duration = Duration(seconds: seconds.round());

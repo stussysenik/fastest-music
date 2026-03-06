@@ -19,8 +19,32 @@ class AlphabetIndex extends StatelessWidget {
   final List<String> availableLetters;
 
   static const List<String> allLetters = [
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
     '#',
   ];
 
@@ -35,20 +59,26 @@ class AlphabetIndex extends StatelessWidget {
   Widget build(BuildContext context) {
     const letters = allLetters;
 
+    void selectLetterAtOffset(Offset globalPosition) {
+      final box = context.findRenderObject() as RenderBox;
+      final localY = box.globalToLocal(globalPosition).dy;
+      final letterHeight = box.size.height / letters.length;
+      final rawIndex =
+          (localY / letterHeight).clamp(0, letters.length - 1).toInt();
+      final selected = _resolveToAvailableLetter(
+        letters[rawIndex],
+        letters: letters,
+        availableLetters: availableLetters,
+      );
+      onLetterSelected(selected);
+    }
+
     return GestureDetector(
       onVerticalDragUpdate: (details) {
-        final box = context.findRenderObject() as RenderBox;
-        final localY = box.globalToLocal(details.globalPosition).dy;
-        final letterHeight = box.size.height / letters.length;
-        final index = (localY / letterHeight).clamp(0, letters.length - 1).toInt();
-        onLetterSelected(letters[index]);
+        selectLetterAtOffset(details.globalPosition);
       },
       onTapDown: (details) {
-        final box = context.findRenderObject() as RenderBox;
-        final localY = box.globalToLocal(details.globalPosition).dy;
-        final letterHeight = box.size.height / letters.length;
-        final index = (localY / letterHeight).clamp(0, letters.length - 1).toInt();
-        onLetterSelected(letters[index]);
+        selectLetterAtOffset(details.globalPosition);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -56,8 +86,8 @@ class AlphabetIndex extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: letters.map((letter) {
             final isActive = activeLetter == letter;
-            final isAvailable = availableLetters.isEmpty ||
-                availableLetters.contains(letter);
+            final isAvailable =
+                availableLetters.isEmpty || availableLetters.contains(letter);
             return SizedBox(
               height: 16,
               width: 20,
@@ -80,5 +110,39 @@ class AlphabetIndex extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _resolveToAvailableLetter(
+    String letter, {
+    required List<String> letters,
+    required List<String> availableLetters,
+  }) {
+    if (availableLetters.isEmpty || availableLetters.contains(letter)) {
+      return letter;
+    }
+
+    final selectedIndex = letters.indexOf(letter);
+    final availableIndices = availableLetters
+        .map(letters.indexOf)
+        .where((index) => index != -1)
+        .toList()
+      ..sort();
+
+    if (availableIndices.isEmpty) {
+      return letter;
+    }
+
+    var nearest = availableIndices.first;
+    var nearestDistance = (nearest - selectedIndex).abs();
+
+    for (final candidate in availableIndices.skip(1)) {
+      final distance = (candidate - selectedIndex).abs();
+      if (distance < nearestDistance) {
+        nearest = candidate;
+        nearestDistance = distance;
+      }
+    }
+
+    return letters[nearest];
   }
 }

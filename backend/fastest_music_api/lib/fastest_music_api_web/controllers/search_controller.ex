@@ -28,7 +28,9 @@ defmodule FastestMusicApiWeb.SearchController do
 
       {:ok, results, cached} = SearchEngine.search(query, opts)
 
-      json(conn, %{
+      conn
+      |> put_resp_header("cache-control", "public, max-age=300, stale-while-revalidate=3600")
+      |> json(%{
         "results" => results,
         "cached" => cached,
         "count" => length(results)

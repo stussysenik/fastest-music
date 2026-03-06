@@ -109,6 +109,7 @@ class _AddToPlaylistSheetState extends ConsumerState<AddToPlaylistSheet> {
                           size: 44,
                           borderRadius: 6,
                           placeholderIcon: Icons.queue_music,
+                          imageSize: ArtworkImageSize.thumbnail,
                         ),
                         title: Text(
                           playlist.name,

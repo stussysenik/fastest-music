@@ -387,6 +387,7 @@ class _DiscoverySectionRow extends StatelessWidget {
                             url: album.artworkUrl,
                             size: 140,
                             borderRadius: 10,
+                            imageSize: ArtworkImageSize.medium,
                           ),
                           if (album.releaseDate != null &&
                               album.releaseDate!.length >= 4)

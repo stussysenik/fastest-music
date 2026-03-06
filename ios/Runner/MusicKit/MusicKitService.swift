@@ -19,7 +19,7 @@ class MusicKitService {
         var request = MusicRecentlyPlayedRequest<Song>()
         request.limit = limit
         let response = try await request.response()
-        return SongMapper.toDictArray(response.items)
+        return MusicItemMapper.toDictArray(response.items)
     }
 
     func searchCatalog(term: String, types: [String]) async throws -> [String: Any] {
@@ -27,11 +27,11 @@ class MusicKitService {
         request.limit = 25
         let response = try await request.response()
 
-        var result: [String: Any] = [:]
-        result["songs"] = SongMapper.toDictArray(response.songs)
-        result["albums"] = AlbumMapper.toDictArray(response.albums)
-        result["artists"] = ArtistMapper.toDictArray(response.artists)
-        return result
+        return [
+            "songs": MusicItemMapper.toDictArray(response.songs),
+            "albums": MusicItemMapper.toDictArray(response.albums),
+            "artists": MusicItemMapper.toDictArray(response.artists),
+        ]
     }
 
     func getArtist(id: String) async throws -> [String: Any?] {
@@ -41,7 +41,7 @@ class MusicKitService {
         guard let artist = response.items.first else {
             throw MusicKitServiceError.notFound
         }
-        return ArtistMapper.toDict(artist)
+        return artist.toDictionary()
     }
 
     func getArtistTopSongs(id: String, limit: Int) async throws -> [[String: Any?]] {
@@ -53,7 +53,7 @@ class MusicKitService {
             return []
         }
         let limited = MusicItemCollection(Array(topSongs.prefix(limit)))
-        return SongMapper.toDictArray(limited)
+        return MusicItemMapper.toDictArray(limited)
     }
 
     func getArtistAlbums(id: String) async throws -> [[String: Any?]] {
@@ -64,7 +64,7 @@ class MusicKitService {
         guard let artist = response.items.first, let albums = artist.albums else {
             return []
         }
-        return AlbumMapper.toDictArray(albums)
+        return MusicItemMapper.toDictArray(albums)
     }
 
     func getAlbum(id: String) async throws -> [String: Any?] {
@@ -74,7 +74,7 @@ class MusicKitService {
         guard let album = response.items.first else {
             throw MusicKitServiceError.notFound
         }
-        return AlbumMapper.toDict(album)
+        return album.toDictionary()
     }
 
     func getAlbumTracks(id: String) async throws -> [[String: Any?]] {
@@ -85,7 +85,7 @@ class MusicKitService {
         guard let album = response.items.first, let tracks = album.tracks else {
             return []
         }
-        return TrackMapper.toDictArray(tracks)
+        return MusicItemMapper.toDictArray(tracks)
     }
 
     // MARK: - User Library
@@ -94,49 +94,21 @@ class MusicKitService {
         var request = MusicLibraryRequest<Album>()
         request.limit = limit
         let response = try await request.response()
-        return response.items.map { album in
-            return [
-                "id": album.id.rawValue,
-                "title": album.title,
-                "artistName": album.artistName,
-                "artworkUrl": album.artwork?.url(width: 600, height: 600)?.absoluteString,
-                "trackCount": album.trackCount,
-                "releaseDate": album.releaseDate?.ISO8601Format(),
-                "genreNames": album.genreNames,
-            ] as [String: Any?]
-        }
+        return MusicItemMapper.toDictArray(response.items)
     }
 
     func getUserLibrarySongs(limit: Int) async throws -> [[String: Any?]] {
         var request = MusicLibraryRequest<Song>()
         request.limit = limit
         let response = try await request.response()
-        return response.items.map { song in
-            return [
-                "id": song.id.rawValue,
-                "title": song.title,
-                "artistName": song.artistName,
-                "albumTitle": song.albumTitle,
-                "duration": song.duration ?? 0,
-                "artworkUrl": song.artwork?.url(width: 600, height: 600)?.absoluteString,
-                "trackNumber": song.trackNumber,
-                "genreNames": song.genreNames,
-            ] as [String: Any?]
-        }
+        return MusicItemMapper.toDictArray(response.items)
     }
 
     func getUserLibraryArtists(limit: Int) async throws -> [[String: Any?]] {
         var request = MusicLibraryRequest<Artist>()
         request.limit = limit
         let response = try await request.response()
-        return response.items.map { artist in
-            return [
-                "id": artist.id.rawValue,
-                "name": artist.name,
-                "artworkUrl": artist.artwork?.url(width: 600, height: 600)?.absoluteString,
-                "genreNames": artist.genreNames,
-            ] as [String: Any?]
-        }
+        return MusicItemMapper.toDictArray(response.items)
     }
 }
 

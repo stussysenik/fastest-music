@@ -112,6 +112,7 @@ class ArtistDetailScreen extends ConsumerWidget {
             size: 100,
             borderRadius: 50,
             placeholderIcon: Icons.person,
+            imageSize: ArtworkImageSize.medium,
           ),
           const SizedBox(width: 16),
           Expanded(

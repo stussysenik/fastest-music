@@ -48,6 +48,7 @@ class PlaylistDetailScreen extends ConsumerWidget {
                   size: MediaQuery.of(context).size.width * 0.6,
                   borderRadius: 12,
                   placeholderIcon: Icons.queue_music,
+                  imageSize: ArtworkImageSize.full,
                 ),
                 const SizedBox(height: 20),
                 Text(

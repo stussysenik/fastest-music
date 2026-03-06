@@ -50,6 +50,7 @@ class SongArtwork extends ConsumerWidget {
         url: song.artworkUrl,
         size: size,
         borderRadius: borderRadius,
+        imageSize: ArtworkImageSize.thumbnail,
       );
     }
 
@@ -63,14 +64,17 @@ class SongArtwork extends ConsumerWidget {
           url: url,
           size: size,
           borderRadius: borderRadius,
+          imageSize: ArtworkImageSize.thumbnail,
         ),
         loading: () => ArtworkImage(
           size: size,
           borderRadius: borderRadius,
+          imageSize: ArtworkImageSize.thumbnail,
         ),
         error: (_, __) => ArtworkImage(
           size: size,
           borderRadius: borderRadius,
+          imageSize: ArtworkImageSize.thumbnail,
         ),
       );
     }
@@ -79,6 +83,7 @@ class SongArtwork extends ConsumerWidget {
     return ArtworkImage(
       size: size,
       borderRadius: borderRadius,
+      imageSize: ArtworkImageSize.thumbnail,
     );
   }
 }
