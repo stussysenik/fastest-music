@@ -1,5 +1,8 @@
 # Fastest Music Vol. 2
 
+![Demo](demo.gif)
+
+
 - edit: another GUI experiment to spin up the fastest music-client with features set suiting me
 
 A full-featured Apple Music client built with Flutter and native MusicKit, backed by an Elixir/Phoenix API for multi-source search and artwork caching.
